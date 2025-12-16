@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nyota Fund — Apply</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <style>
+    #idPreview { width:140px; height:100px; object-fit:cover; border-radius:8px; display:none; }
+    .apply-grid{display:grid; grid-template-columns:1fr 340px; gap:16px}
+    @media (max-width:980px){ .apply-grid{grid-template-columns:1fr} }
+
+    .password-hint {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- CONFIRM POPUP -->
+<div id="confirmPopup" class="popup-overlay">
+  <div class="popup-card">
+    <h3>Confirm Your Details</h3>
+    <div id="popupContent" class="popup-details"></div>
+
+    <div class="popup-actions">
+      <button id="confirmBtn" class="btn-cta">Confirm & Continue</button>
+      <button id="cancelBtn" class="btn-ghost">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.popup-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.55);
+  display:none; align-items:center; justify-content:center; z-index:9999;
+}
+.popup-card{
+  background:#fff; padding:20px; width:90%; max-width:420px;
+  border-radius:10px;
+}
+.popup-actions{display:flex; gap:10px; margin-top:15px;}
+</style>
+
+<header class="header">
+  <div class="navbar container">
+    <div class="brand">
+      <div class="logo-wrapper"><img src="assets/images/nyotalogo.png"></div>
+      <div>
+        <div class="brand-text">Nyota Fund</div>
+        <div class="brand-sub">Application</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="btn-cta" onclick="location.href='login.html'">Login</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="section container card">
+<h2>Application Form</h2>
+
+<div class="apply-grid">
+<form id="applyForm" novalidate>
+
+<label>Full Name</label>
+<input name="fullname" class="input" required>
+
+<label>Email</label>
+<input name="email" class="input" type="email" required>
+
+<label>Phone</label>
+<input name="phone" class="input" required>
+
+<label>National ID Number</label>
+<input name="nationalId" class="input" type="text" placeholder="Enter National ID" required>
+
+<label>Password</label>
+<input name="password" id="password" class="input" type="password" required minlength="6">
+<div class="password-hint">Minimum 6 characters</div>
+
+<label>Confirm Password</label>
+<input id="confirmPassword" class="input" type="password" required>
+
+<label>Date of Birth</label>
+<input name="dob" class="input" type="date">
+
+<label>County</label>
+<input name="county" class="input">
+
+<label>Program Applying For</label>
+<select name="program" class="select" required>
+  <option value="">-- Choose --</option>
+  <option value="scholarship">Scholarship</option>
+  <option value="microgrant">Microgrant</option>
+  <option value="mentorship">Mentorship</option>
+</select>
+
+<div style="margin-top:14px; display:flex; gap:10px;">
+  <button class="btn-cta">Submit Application</button>
+  <button type="reset" class="btn-ghost">Reset</button>
+</div>
+
+<div id="applyFeedback" class="small" style="margin-top:10px"></div>
+
+</form>
+</div>
+</section>
+</main>
+
+<footer>
+  <div class="container small">© Nyota Fund <span id="year-apply"></span></div>
+</footer>
+
+<script>
+document.getElementById("year-apply").textContent = new Date().getFullYear();
+
+const popup = document.getElementById("confirmPopup");
+const popupContent = document.getElementById("popupContent");
+const confirmBtn = document.getElementById("confirmBtn");
+const cancelBtn = document.getElementById("cancelBtn");
+
+cancelBtn.onclick = () => popup.style.display = "none";
+
+document.getElementById("applyForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  const feedback = document.getElementById("applyFeedback");
+
+  const data = Object.fromEntries(new FormData(this).entries());
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+
+  if (password.length < 6) {
+    feedback.textContent = "Password must be at least 6 characters.";
+    feedback.style.color = "crimson";
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    feedback.textContent = "Passwords do not match.";
+    feedback.style.color = "crimson";
+    return;
+  }
+
+  // Save user (demo storage)
+  const userData = {
+  fullname: data.fullname,
+  email: data.email,
+  nationalId: data.nationalId,
+  password: data.password // demo only
+};
+
+localStorage.setItem("nyotaUser", JSON.stringify(userData));
+
+
+ popupContent.innerHTML = `
+  <p><strong>Name:</strong> ${data.fullname}</p>
+  <p><strong>Email:</strong> ${data.email}</p>
+  <p><strong>Phone:</strong> ${data.phone}</p>
+  <p><strong>National ID:</strong> ${data.nationalId}</p>
+  <p><strong>DOB:</strong> ${data.dob || "N/A"}</p>
+  <p><strong>County:</strong> ${data.county || "N/A"}</p>
+  <p><strong>Program:</strong> ${data.program}</p>
+`;
+
+
+  popup.style.display = "flex";
+
+  confirmBtn.onclick = () => {
+    popup.style.display = "none";
+    window.location.href = "loan-approval-check.html";
+  };
+});
+</script>
+
+</body>
+</html>
